@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    
+    <title>Verbapp</title>
+    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  </head>
+
+  <body class="text-center">
+
+    <header>
+      <div class="navbar navbar-dark bg-dark box-shadow">
+        <div class="container d-flex justify-content-between">
+          <a href="#" class="navbar-brand d-flex align-items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            <strong>Verbapp HU</strong>
+          </a>
+          <a href="add-verb" class="text-white">Add Verb</a>
+        </div>
+      </div>
+    </header>
+
+    
+    <main role="main" class="container" style="max-width:400px; margin: 5% auto;">
+      
+       <h1>{{ to_translate }}</h1>
+        
+        <form class="form-signin">
+          <input type="text" id="translation" class="form-control" placeholder="..." required autofocus style="margin:20px 0;">
+          <p class="lead" id="solution">{{solution}}</p>
+          <p>{{selected_verb}} ({{verb_translation}})</p>
+          <button class="btn btn-lg btn-warning btn-block" type="submit" style="margin:20px 0;">Check</button>
+          <button class="btn btn-lg btn-secondary btn-block" type="submit" style="margin:20px 0;">Show</button>
+        </form>
+        
+    </main>
+    
+    <footer class="footer">
+      <div class="container">
+        <hr/>
+        <span class="text-muted">Verbs File: {{filename}}</span>
+      </div>
+    </footer>
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script>
+    
+    </script>
+  </body>
+</html>
+
