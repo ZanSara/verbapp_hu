@@ -1,26 +1,14 @@
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, flash
 
 app = Flask(__name__)
+app.secret_key = 'avrq23n8rp2ru p lvskjnawlurcny ur01c3fakdsfw'
 
 import os, json, random, requests
 from bs4 import BeautifulSoup
 
 
-verbs_filename = "verbs"
 verbs_folder = "verbs_conj/"
-
-
-def load_verbs():
-    conjugations = []
-    for filename in os.listdir(verbs_folder):
-        with open("{}{}".format(verbs_folder, filename), 'r') as verbfile:
-            verbsconj = json.loads(verbfile.readlines()[0])
-            conjugations += verbsconj
-        
-    print(len(conjugations))
-    return conjugations
-        
 
 
 
@@ -32,98 +20,103 @@ def add_verb():
     # Load the new verb, if it does not exist already
     
     verb = request.form['verb']
-    with open(verbs_filename, 'r') as verbsfile:
-        for existing_verb in verbsfile.readlines():
-            if existing_verb == verb:
-                return render_template('verbapp_add_verb.html', get=False, success=True)
+    print("Requested verb: ", verb)
+
+    if verb in os.listdir(verbs_folder):
+        flash("This verb was already in the list.")
+        return render_template('verbapp_add_verb.html', downloaded_verbs=os.listdir(verbs_folder))
             
     conjugations = []
-    #try:
+
     verb = verb.strip().lower()
+    print("Requested verb: " + verb)
     
-    cooljugator = requests.get( 'https://cooljugator.com/hu/{}'.format(verb) ) 
-    verbix = requests.get( 'https://api.verbix.com//conjugator/jsonp/ab8e7bb5-9ac6-11e7-ab6a-00089be4dcbc/1/121/221/{}?getVerbixHtml=getVerbixHtml&_=1522874032369'.format(verb) ) 
-    print("Fetching from "+cooljugator.url +" and "+verbix.url)  
-    
-    verbix_content = str(verbix.content).replace('\\n', '').replace('\\r', '').replace('\\', '')[30:-200].encode()
-    print(type(verbix_content))
-    print(verbix_content)
-    
-    cooljugator_soup = BeautifulSoup(cooljugator.content, "html.parser")
-    verbix_soup = BeautifulSoup(verbix_content, "html.parser")
-
-    title = cooljugator_soup.body.find('h1').text
-    verb_translation = title.split("(")[1].split(")")[0];
-    print(verb_translation)
-    
-    # Parsing hierarchy-wise
     try:
-        for mode_div in verbix_soup.body.find_all('div', attrs={'class':'pure-u-1-1'}):
-            mode_name = verbix_soup.body.find('h2').text
-            print(mode_name)
-            
-            for tense_div in mode_div.find_all('div', attrs={'class':'pure-u-1-2'}):
-                tense_name = tense_div.find('h3').text
-                print(tense_name)
-                
-                for conj_span in tense_div.find_all('span', attrs={'class':'normal'}):
-                    conj_name = conj_span.text
-                    
-                    translation = cooljugator_soup.body.find('div', attrs={'data-default':conj_name}).find('div', attrs={'class':'meta-translation'}).text
-                    
-                    conjugations.append( (
-                                        verb,
-                                        verb_translation,
-                                        mode_name+' '+tense_name,
-                                        conj_name,
-                                        translation
-                                   ) )
-    except AttributeError as ae:
-            print(ae) # we got a 404 with no such cells
-            
-    #for match in cooljugator_soup.body.find_all('div', attrs={'class': 'conjugation-cell'}):
-    #    try:
-    #        conjugations.append( (  
-    #                                verb,
-    #                                verb_translation,
-    #                                match.find('div', attrs={'class': 'meta-form'}).text,
-    #                                match.find('div', attrs={'class': 'meta-translation'}).text) 
-    #                           )
-    #    except AttributeError:
-    #        continue # we got a 404 with no such cells
     
-    # save its verb file
-    with open("{}{}".format(verbs_folder, verb), 'w') as verbfile:
-        json.dump(conjugations, verbfile)
-            
-        # add to the verbs index
-        #with open(verbs_filename, 'a') as verbsfile:
-        #    verbsfile.write(verb+'\n')
-            
-    #except Exception as e:
-    #    print(" ===========> Exception! Reload pls")
-    #    print('https://cooljugator.com/hu/' + verb)
-    #    return render_template('verbapp_add_verb.html', success=False, msg=e)
+        cooljugator = requests.get( 'https://cooljugator.com/hu/{}'.format(verb) ) 
+        print("Fetching from "+cooljugator.url )
         
-    return render_template('verbapp_add_verb.html', get=False, success=True)
-    
-    
+        cooljugator_soup = BeautifulSoup(cooljugator.content, "html.parser")
+
+        title = cooljugator_soup.body.find('h1').text
+        verb_translation = title.split("(")[1].split(")")[0]
+        print("Verb translation: ", verb_translation)
+
+        table_cells = cooljugator_soup.body.find_all('div', attrs={'class':'conjugation-cell'})
+        last_tense_title = ""
+        for cell in table_cells:
+
+            if "tense-title" in cell['class']:
+
+                tense = cell.find('span', attrs={'class':'tense-title-space'})
+                if tense:
+                    last_tense_title = tense.text
+                    print("\n\n*** " + tense.text + " ***")
+
+            else:
+                conjugation_div = cell.find('div', attrs={'class':'forms-wrapper'})
+
+                if conjugation_div:
+                    conjugated_verb_div = conjugation_div.find('div', attrs={'class': 'meta-form'})
+                    conjugated_verb = conjugated_verb_div.text
+
+                    translation = cell.attrs.get('data-tooltip')
+
+                    if conjugated_verb and translation:
+                        print(f"{conjugated_verb} ({translation})")
+
+                        conjugations.append( (
+                                                verb,
+                                                verb_translation,
+                                                last_tense_title,
+                                                conjugated_verb,
+                                                translation
+                                            ) )
+
+        # save its verb file
+        with open("{}{}".format(verbs_folder, verb), 'w') as verbfile:
+            json.dump(conjugations, verbfile)            
+        
+        return render_template('verbapp_add_verb.html', get=False, success=True, downloaded_verbs=os.listdir(verbs_folder))
+
+    except Exception as e:
+        flash("Something went wrong fetching this verb! Is the spelling correct?")
+        print(e)
+        return redirect(url_for('add_verb'))
 
 
-@app.route("/")
-@app.route("/words")
+@app.route("/", methods=['GET', 'POST'])
+@app.route("/words", methods=['GET', 'POST'])
 def home():
+    checked_tenses = list(request.form.keys())
     
-    conjugations = load_verbs()
+    conjugations = []
+    for filename in os.listdir(verbs_folder):
+        with open("{}{}".format(verbs_folder, filename), 'r') as verbfile:
+            verbsconj = json.loads(verbfile.readlines()[0])
+            conjugations += verbsconj
     
-    (selected_verb, verb_translation, tense, to_translate, solution) = random.choice(conjugations)
+    if not conjugations:
+        return redirect(url_for('add_verb'))
+
+    available_tenses = [conj[2] for conj in conjugations]
+    available_tenses = list(dict.fromkeys(available_tenses))
     
+    while True:
+        (selected_verb, verb_translation, tense, to_translate, solution) = random.choice(conjugations)
+        if len(checked_tenses) == 0:
+            break
+        if tense in checked_tenses:
+            break 
+
     return render_template('verbapp_words.html', 
                                 to_translate=to_translate,
                                 solution=solution,
                                 tense = tense,
                                 selected_verb=selected_verb,
-                                verb_translation=verb_translation)
+                                verb_translation=verb_translation,
+                                available_tenses=available_tenses,
+                                checked_tenses=checked_tenses)
                                 
                                 
                                 
