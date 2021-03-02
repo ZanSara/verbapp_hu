@@ -22,7 +22,7 @@
             <strong>Verbapp HU</strong>
           </a>
           <div>
-            <a href="/words/en_hu" class="text-white">EN -> HU</a>
+            <a href="/words/en_hu" class="text-white" style="margin-right: 20px;">EN -> HU</a>
             <a href="/words/hu_en" class="text-white">HU -> EN</a>
           </div>
         </div>
@@ -59,7 +59,7 @@
         <hr>
         <div class="row">
           {% for verb in downloaded_verbs|sort %}
-          <div class="text-muted col-1">{{verb}}</div>
+          <div class="text-muted col-lg-1 col-md-4 col-sm-12">{{verb}}</div>
           {% endfor %}
         </div>
       </div>
