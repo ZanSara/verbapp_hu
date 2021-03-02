@@ -15,7 +15,7 @@ verbs_folder = "verbs_conj/"
 @app.route("/add-verb", methods=["GET", "POST"])
 def add_verb():
     if request.method=="GET":
-        return render_template('verbapp_add_verb.html', get=True)
+        return render_template('verbapp_add_verb.html', get=True, downloaded_verbs=os.listdir(verbs_folder))
     
     # Load the new verb, if it does not exist already
     
@@ -85,9 +85,13 @@ def add_verb():
         return redirect(url_for('add_verb'))
 
 
-@app.route("/", methods=['GET', 'POST'])
-@app.route("/words", methods=['GET', 'POST'])
+@app.route("/", methods=['GET'])
 def home():
+    return redirect(url_for('add_verb'))
+
+
+@app.route("/words/<direction>", methods=['GET', 'POST'])
+def words(direction):
     checked_tenses = list(request.form.keys())
     
     conjugations = []
@@ -100,7 +104,7 @@ def home():
         return redirect(url_for('add_verb'))
 
     available_tenses = [conj[2] for conj in conjugations]
-    available_tenses = list(dict.fromkeys(available_tenses))
+    available_tenses = list(dict.fromkeys(available_tenses))  # Remove duplicates without shuffling
     
     while True:
         (selected_verb, verb_translation, tense, to_translate, solution) = random.choice(conjugations)
@@ -109,14 +113,14 @@ def home():
         if tense in checked_tenses:
             break 
 
-    return render_template('verbapp_words.html', 
+    return render_template(f'verbapp_{direction}.html',
                                 to_translate=to_translate,
                                 solution=solution,
-                                tense = tense,
+                                tense=tense,
                                 selected_verb=selected_verb,
                                 verb_translation=verb_translation,
                                 available_tenses=available_tenses,
                                 checked_tenses=checked_tenses)
-                                
-                                
+
+    
                                 

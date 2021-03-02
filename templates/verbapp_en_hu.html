@@ -14,6 +14,7 @@
 
   <body class="text-center">
 
+    <form action="/words/en_hu" method="post">
     <header>
       <div class="navbar navbar-dark bg-dark box-shadow">
         <div class="container d-flex justify-content-between">
@@ -22,7 +23,7 @@
             <strong>Verbapp HU</strong>
           </a>
           <div>
-            <a href="/words/en_hu" class="text-white">EN -> HU</a>
+            <a href="/add-verb" class="text-white" style="margin-right: 20px;">Add Verb</a>
             <a href="/words/hu_en" class="text-white">HU -> EN</a>
           </div>
         </div>
@@ -32,39 +33,32 @@
     
     <main role="main" class="container" style="max-width:400px; margin: 5% auto;">
       
-       <h1>Add a verb!</h1>
+       <h1>{{ solution }} {% if " definite" in tense %}it{% endif %}</h1>
         
-        <form class="form-signin" method="post">
-          <input type="text" name="verb" id="verb" class="form-control" placeholder="..." required autofocus style="margin:20px 0;">
-          {% if not get %}
-              {% if success %}
-                    <p style="{color:#bb0000;">Verb added. <a href="words/en_hu">Study</a></p>
-              {% else %}
-                    <p style="color:#bb0000;">{{msg}}</p>
-              {% endif %}
-          {% endif %}
-          <button class="btn btn-lg btn-success btn-block" type="submit" style="margin:20px 0;">Add</button>
-        </form>
+        <div class="form-signin">
+          <input type="text" id="translation" class="form-control" placeholder="..." autofocus style="margin:20px 0;" value="">
+          <h2 id="solution" style="display:none;">{{to_translate}}</h2>
+          <p id="base-verb" style="display:none;">{{selected_verb}} ({{verb_translation}}, {{tense}})</p>
+          <button type="button" class="btn btn-lg btn-secondary btn-block" style="margin:20px 0;" onclick="document.getElementById('base-verb').style.display='block';">Base verb & tense</button>
+          <button id="show" type="button" class="btn btn-lg btn-warning btn-block" style="margin:20px 0;" onclick="document.getElementById('solution').style.display='block';document.getElementById('base-verb').style.display='block';document.getElementById('next').style.display='block';document.getElementById('show').style.display='none';">Solution</button>
+          <input id="next" style="display:none;" class="btn btn-lg btn-primary btn-block" type="submit" style="margin:20px 0;" value="Next">
+        </div>
         
     </main>
-
-    {% for flash in get_flashed_messages() %}
-    <p>{{ flash }}</p>
-    {% endfor %}
     
     <footer class="footer">
       <div class="container">
         <hr>
-        <span class="text-muted">Verbs Downloaded:</span>
+        <div class="text-muted">Available Tenses:</div>
         <hr>
-        <div class="row">
-          {% for verb in downloaded_verbs|sort %}
-          <div class="text-muted col-1">{{verb}}</div>
-          {% endfor %}
-        </div>
+        {% for tense in available_tenses %}
+        <input type="checkbox" class="text-muted" name="{{tense}}" {% if tense in checked_tenses %}checked{% endif %}></input>
+        <label>{{tense}}</label><br>
+        {% endfor %}
       </div>
     </footer>
 
+    </form>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
