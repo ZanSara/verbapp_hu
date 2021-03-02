@@ -55,7 +55,7 @@
     <footer class="footer">
       <div class="container">
         <hr>
-        <span class="text-muted">Verbs Downloaded:</span>
+        <span class="text-muted">Verbs Downloaded: {{ downloaded_verbs|length }}</span>
         <hr>
         <div class="row">
           {% for verb in downloaded_verbs|sort %}
