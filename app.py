@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 verbs_folder = (pathlib.Path(__file__).parent / "verbs_conj")
 
 def verbs_list():
-    return [v.decode('utf-8', 'surrogateescape') for v in os.listdir(verbs_folder)]
+    return [v for v in os.listdir(verbs_folder)]
 
 
 @app.route("/add-verb", methods=["GET", "POST"])

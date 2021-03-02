@@ -9,5 +9,5 @@ sys.path.insert(0, '/var/www/verbapp')
 from app import app as application
 
 if __name__ == "__main__":
-    application.run(debug=False)
+    application.run(debug=False, host="0.0.0.0")
 
