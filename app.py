@@ -10,12 +10,14 @@ from bs4 import BeautifulSoup
 
 verbs_folder = (pathlib.Path(__file__).parent / "verbs_conj")
 
+def verbs_list():
+    return [v.decode('utf-8', 'surrogateescape') for v in os.listdir(verbs_folder)]
 
 
 @app.route("/add-verb", methods=["GET", "POST"])
 def add_verb():
     if request.method=="GET":
-        return render_template('verbapp_add_verb.html', get=True, downloaded_verbs=os.listdir(verbs_folder))
+        return render_template('verbapp_add_verb.html', get=True, downloaded_verbs=verbs_list())
     
     # Load the new verb, if it does not exist already
     
@@ -24,7 +26,7 @@ def add_verb():
 
     if verb in os.listdir(verbs_folder):
         flash("This verb was already in the list.")
-        return render_template('verbapp_add_verb.html', downloaded_verbs=os.listdir(verbs_folder))
+        return render_template('verbapp_add_verb.html', downloaded_verbs=verbs_list())
             
     conjugations = []
 
@@ -77,7 +79,7 @@ def add_verb():
         with open("{}/{}".format(verbs_folder, verb), 'w') as verbfile:
             json.dump(conjugations, verbfile)            
         
-        return render_template('verbapp_add_verb.html', get=False, success=True, downloaded_verbs=os.listdir(verbs_folder))
+        return render_template('verbapp_add_verb.html', get=False, success=True, downloaded_verbs=verbs_list())
 
     except Exception as e:
         flash("Something went wrong fetching this verb! Is the spelling correct?")
