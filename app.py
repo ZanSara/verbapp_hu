@@ -4,11 +4,11 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 app = Flask(__name__)
 app.secret_key = 'avrq23n8rp2ru p lvskjnawlurcny ur01c3fakdsfw'
 
-import os, json, random, requests
+import os, json, random, requests, pathlib
 from bs4 import BeautifulSoup
 
 
-verbs_folder = "verbs_conj/"
+verbs_folder = (pathlib.Path(__file__).parent / "verbs_conj")
 
 
 
@@ -74,7 +74,7 @@ def add_verb():
                                             ) )
 
         # save its verb file
-        with open("{}{}".format(verbs_folder, verb), 'w') as verbfile:
+        with open("{}/{}".format(verbs_folder, verb), 'w') as verbfile:
             json.dump(conjugations, verbfile)            
         
         return render_template('verbapp_add_verb.html', get=False, success=True, downloaded_verbs=os.listdir(verbs_folder))
@@ -96,7 +96,7 @@ def words(direction):
     
     conjugations = []
     for filename in os.listdir(verbs_folder):
-        with open("{}{}".format(verbs_folder, filename), 'r') as verbfile:
+        with open("{}/{}".format(verbs_folder, filename), 'r') as verbfile:
             verbsconj = json.loads(verbfile.readlines()[0])
             conjugations += verbsconj
     
